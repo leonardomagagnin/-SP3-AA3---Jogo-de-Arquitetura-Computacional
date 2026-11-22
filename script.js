@@ -145,6 +145,7 @@
         input.dataset.r=r; input.dataset.c=c;
         input.addEventListener('input', onInput);
         input.addEventListener('keydown', onKeyDown);
+        input.addEventListener('focus', onFocus);
         cell.appendChild(input);
         inputs[`${r},${c}`]=input;
       }
@@ -152,25 +153,96 @@
     }
   }
 
+  // map cells to placements for quick lookup
+  const placementsByCell = {};
+  function addCellPlacement(pr){
+    const p = pr.placed || pr; // support both shapes
+    const L = p.word.length;
+    if(p.dir==='across'){
+      for(let i=0;i<L;i++){ const key=`${p.row},${p.col+i}`; placementsByCell[key]=placementsByCell[key]||[]; placementsByCell[key].push(p); }
+    } else {
+      for(let i=0;i<L;i++){ const key=`${p.row+i},${p.col}`; placementsByCell[key]=placementsByCell[key]||[]; placementsByCell[key].push(p); }
+    }
+  }
+  placements.forEach(p=>addCellPlacement(p));
+
+  let activeDirection = 'across';
+
+  function getPlacementForCellDir(r,c,dir){
+    const key = `${r},${c}`; const arr = placementsByCell[key]||[];
+    for(const p of arr) if(p.dir===dir) return p;
+    return null;
+  }
+
+  function onFocus(e){
+    const el = e.target; const r=+el.dataset.r, c=+el.dataset.c;
+    const key = `${r},${c}`; const arr = placementsByCell[key]||[];
+    // prefer across when available
+    const hasAcross = arr.some(p=>p.dir==='across');
+    const hasDown = arr.some(p=>p.dir==='down');
+    if(hasAcross) activeDirection='across';
+    else if(hasDown) activeDirection='down';
+    // otherwise keep current
+  }
+
+  function focusNextInDirection(r,c,dir){
+    const p = getPlacementForCellDir(r,c,dir) || (dir==='across' ? getPlacementForCellDir(r,c,'down') : getPlacementForCellDir(r,c,'across'));
+    if(!p) return false;
+    if(p.dir==='across'){
+      const idx = c - p.col; const next = idx+1;
+      if(next < p.word.length){ const key = `${p.row},${p.col+next}`; if(inputs[key]){ inputs[key].focus(); return true } }
+    } else {
+      const idx = r - p.row; const next = idx+1;
+      if(next < p.word.length){ const key = `${p.row+next},${p.col}`; if(inputs[key]){ inputs[key].focus(); return true } }
+    }
+    return false;
+  }
+
+  function focusPrevInDirection(r,c,dir){
+    const p = getPlacementForCellDir(r,c,dir) || (dir==='across' ? getPlacementForCellDir(r,c,'down') : getPlacementForCellDir(r,c,'across'));
+    if(!p) return false;
+    if(p.dir==='across'){
+      const idx = c - p.col; const prev = idx-1;
+      if(prev >= 0){ const key = `${p.row},${p.col+prev}`; if(inputs[key]){ inputs[key].focus(); return true } }
+    } else {
+      const idx = r - p.row; const prev = idx-1;
+      if(prev >= 0){ const key = `${p.row+prev},${p.col}`; if(inputs[key]){ inputs[key].focus(); return true } }
+    }
+    return false;
+  }
+
   function onInput(e){
     const el = e.target; let v = el.value.toUpperCase();
     v = v.replace(/[^A-Z]/g,'');
     el.value = v;
-    // move focus forward
+    const r = +el.dataset.r, c = +el.dataset.c;
+    // after typing, move forward along activeDirection
     if(v){
-      const r = +el.dataset.r, c=+el.dataset.c;
-      // try move to next cell in row then down
-      for(let nc=c+1;nc<n;nc++){
-        const key = `${r},${nc}`; if(inputs[key]){ inputs[key].focus(); return } }
-      for(let nr=r+1;nr<n;nr++){
-        const key = `${nr},${0}`; if(inputs[key]){ inputs[key].focus(); return } }
+      if(!focusNextInDirection(r,c,activeDirection)){
+        // fallback: try the other direction
+        const other = activeDirection==='across' ? 'down' : 'across';
+        focusNextInDirection(r,c,other);
+      }
     }
   }
+
   function onKeyDown(e){
     const el = e.target; const r=+el.dataset.r,c=+el.dataset.c;
-    if(e.key==='Backspace' && !el.value){
-      // move left
-      for(let nc=c-1;nc>=0;nc--){ const key=`${r},${nc}`; if(inputs[key]){ inputs[key].focus(); break } }
+    if(e.key==='Backspace'){
+      if(el.value){ return } // just delete
+      // move to previous cell in active direction
+      if(!focusPrevInDirection(r,c,activeDirection)){
+        const other = activeDirection==='across' ? 'down' : 'across';
+        focusPrevInDirection(r,c,other);
+      }
+    } else if(e.key==='ArrowLeft'){
+      activeDirection='across'; focusPrevInDirection(r,c,'across'); e.preventDefault();
+    } else if(e.key==='ArrowRight'){
+      activeDirection='across'; focusNextInDirection(r,c,'across'); e.preventDefault();
+    } else if(e.key==='ArrowUp'){
+      activeDirection='down'; focusPrevInDirection(r,c,'down'); e.preventDefault();
+    } else if(e.key==='ArrowDown'){
+      activeDirection='down'; focusNextInDirection(r,c,'down'); e.preventDefault();
     }
   }
 

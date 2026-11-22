@@ -1,54 +1,110 @@
 :root{
-  --bg:#071018; /* quase preto-azulado */
-  --panel:#071827;
-  --neon:#00e6f6; /* ciano */
-  --muted:#7aa6ad;
-  --correct:#07d18b;
-  --wrong:#ff4d6d;
+  --bg: #0a1222;
+  --card: #0e1a30;
+  --card-fundo: #0a1424;
+  --borda: #1c2c47;
+  --menta: #2fd9a8;
+  --texto: #e8eefc;
+  --texto-suave: #9fb0cc;
+  --certo: #2fd9a8;
+  --errado: #ff5d6c;
+  --casa: #f4f7fc;
+  --casa-vazia: #0e1830;
 }
 *{box-sizing:border-box}
-html,body,#board{height:100%}
+html,body{height:100%}
 body{
   margin:0;
-  font-family:Inter,Segoe UI,Arial, sans-serif;
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.35) 100%),
-    radial-gradient(1200px 600px at 10% 10%, rgba(0,230,246,0.03), transparent),
-    var(--bg);
-  color:#e6f7fb;
+  font-family: system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  background: radial-gradient(800px 400px at 10% 85%, rgba(10,18,34,0.12), transparent 20%), var(--bg);
+  color:var(--texto);
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
 }
-.container{max-width:1100px;margin:24px auto;padding:18px}
-h1{margin:6px 0 18px;color:var(--neon);font-size:20px}
-.game{display:flex;gap:18px;align-items:flex-start}
-#board-wrap{flex:1;overflow:auto;padding:12px;border-radius:8px;background:linear-gradient(180deg, rgba(0,0,0,0.12), rgba(255,255,255,0.01));box-shadow:0 4px 18px rgba(0,0,0,0.6)}
-#board{display:grid;gap:4px;padding:12px}
-.cell{width:44px;height:44px;background:rgba(255,255,255,0.03);border-radius:6px;position:relative;display:flex;align-items:center;justify-content:center}
-.cell.block{background:transparent}
-.cell input{width:100%;height:100%;border:0;background:transparent;color:var(--neon);font-weight:700;font-size:20px;text-align:center;outline:none}
-.cell .num{position:absolute;left:4px;top:2px;font-size:11px;color:var(--muted)}
-.clues{width:360px}
-.clues .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-button{background:transparent;border:1px solid rgba(0,230,246,0.18);color:var(--neon);padding:8px 12px;border-radius:8px;cursor:pointer}
-button:hover{background:rgba(0,230,246,0.03)}
-#score{margin-left:auto;color:var(--muted)}
-.lists{display:flex;gap:12px}
-.lists h2{margin:4px 0 6px;font-size:14px;color:var(--neon)}
-ol{padding-left:20px;margin:0;font-size:13px;color:#cfeff3}
-.message{margin-top:12px;padding:10px;border-radius:8px;background:rgba(0,0,0,0.25);min-height:40px}
-.cell.correct input{background:linear-gradient(90deg, rgba(7,209,139,0.06), rgba(7,209,139,0.02));border-radius:6px}
-.cell.wrong input{background:linear-gradient(90deg, rgba(255,77,109,0.06), rgba(255,77,109,0.02));border-radius:6px}
+.container{max-width:1190px;margin:18px auto;padding:18px}
+
+/* Header */
+.site-header{border-bottom:1px solid var(--borda);background:transparent;padding:10px 0;margin-bottom:18px}
+.site-header-inner{display:flex;flex-direction:column;gap:8px;max-width:1190px;margin:0 auto;padding:0 14px}
+.kicker{color:var(--menta);font-weight:800;letter-spacing:0.12em;font-size:0.8rem;text-transform:uppercase}
+.title-row{display:flex;align-items:center;gap:16px}
+.site-title{font-size:2rem;margin:0;font-weight:800;color:var(--texto)}
+.nav-menu{margin-left:auto;display:flex;gap:8px}
+.nav-btn{background:transparent;border:1px solid var(--menta);color:var(--menta);padding:12px 18px;border-radius:12px;font-weight:800;font-size:1.05rem;cursor:pointer}
+.nav-btn.current{background:rgba(47,217,168,0.08);color:var(--texto)}
+.nav-btn:hover{background:rgba(47,217,168,0.12)}
+.nav-btn:focus{outline:3px solid rgba(47,217,168,0.18)}
+
+/* layout */
+.game{display:flex;gap:24px;align-items:flex-start}
+.card{background:var(--card);border:1px solid var(--borda);border-radius:20px;padding:18px}
+.board-card{flex:1;min-width:320px}
+.clues-card{width:380px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-title{font-size:1.5rem;font-weight:800;color:var(--texto)}
+.card-actions{display:flex;align-items:center;gap:12px}
+.card-actions #score{color:var(--menta);font-weight:800;font-size:1.15rem}
+.card-actions button{border-radius:10px;padding:12px 18px;font-weight:800;cursor:pointer;border:1px solid var(--borda)}
+.card-actions button:focus{outline:3px solid rgba(47,217,168,0.14)}
+.card-actions #check{background:var(--menta);color:#06231b;border:1px solid rgba(0,0,0,0.06)}
+.card-actions #restart{background:#131f38;color:var(--texto);border:1px solid var(--borda)}
+.card-actions button:hover{transform:translateY(-1px);filter:brightness(1.05)}
+
+.card-body{background:var(--card-fundo);border:1px solid var(--borda);border-radius:16px;padding:12px}
+
+#board-wrap{overflow:auto;padding:12px;display:flex;justify-content:center}
+#board{display:grid;gap:5px;padding:8px}
+.cell{width:52px;height:52px;border-radius:6px;position:relative;display:flex;align-items:center;justify-content:center;transition:background-color 150ms,color 150ms,transform 120ms}
+.cell.block{background:var(--casa-vazia)}
+.cell input{width:100%;height:100%;border:0;background:var(--casa);color:#0a1222;font-weight:800;font-size:1.5rem;text-align:center;outline:none;border-radius:6px}
+.cell .num{position:absolute;left:6px;top:4px;font-size:0.6rem;color:#5b6f94;font-weight:600;text-transform:lowercase}
+
+/* focus and active word (best-effort: focus cell + focus-within) */
+.cell:focus-within{box-shadow:0 0 0 3px rgba(47,217,168,0.12);}
+.cell input:focus{outline:2px solid var(--menta);box-shadow:0 4px 18px rgba(47,217,168,0.08)}
+.cell:focus-within input{background: #d6f7ec}
+
+/* correct / wrong */
+.cell.correct{background:var(--certo)}
+.cell.correct input{background:transparent;color:#06231b}
+.cell.wrong{background:var(--errado)}
+.cell.wrong input{background:transparent;color:#fff}
+.cell.correct.wrong{background:var(--certo)}
+
+.help{color:var(--texto-suave);font-size:0.95rem;margin-top:12px}
+
+/* clues */
+.lists{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.list-title{font-size:0.85rem;color:var(--menta);font-weight:800;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 8px}
+.clue-list{list-style-position:inside;padding:0;margin:0;color:var(--texto)}
+.clue-list li{padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.clue-list li:hover{background:#13213b;cursor:pointer}
+.clue-list li strong{color:var(--menta);margin-right:8px}
+.clue-list li .status{opacity:0}
+.clue-list li.correct .status{opacity:1;color:var(--certo)}
+.clue-list li.wrong .status{opacity:1;color:var(--errado)}
+.message{margin-top:12px;padding:10px;border-radius:8px;background:transparent;min-height:40px}
+
+/* success banner */
+.success-banner{border:1px solid rgba(47,217,168,0.22);background:rgba(47,217,168,0.08);padding:12px;border-radius:14px;color:var(--texto);font-weight:700;animation: enter 260ms ease}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* responsive */
 @media (max-width:900px){
   .game{flex-direction:column}
-  .clues{width:100%}
+  .clues-card{width:100%}
+  .card{padding:14px}
   .cell{width:40px;height:40px}
+  .site-title{font-size:1.4rem}
+  .nav-menu{order:3;width:100%;justify-content:flex-start}
 }
 
-/* subtle grid/trace texture using CSS gradients (circuit-like) */
-body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:0.06;background-image:
-  linear-gradient(90deg, rgba(0,230,246,0.03) 1px, transparent 1px),
-  linear-gradient(0deg, rgba(0,230,246,0.02) 1px, transparent 1px);
-  background-size:120px 120px,120px 120px;mix-blend-mode:overlay}
+@media (max-width:700px){
+  #board{gap:4px}
+  .cell{width:36px;height:36px}
+  .card-actions{flex-direction:column;align-items:flex-end}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;animation:none!important}
+}
