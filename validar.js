@@ -1,65 +1,107 @@
 #!/usr/bin/env node
-// validar.js - valida o formato de dados.js localmente e tenta gerar um tabuleiro
+// validar.js - valida dados.js (palavras, pistas e LAYOUT fixo do tabuleiro)
+// Uso: node validar.js
 const fs = require('fs');
 const path = require('path');
 
-const dadosPath = path.join(__dirname,'dados.js');
-if(!fs.existsSync(dadosPath)){ console.error('dados.js não encontrado'); process.exit(2) }
-const content = fs.readFileSync(dadosPath,'utf8');
+const codigo = fs.readFileSync(path.join(__dirname, 'dados.js'), 'utf8');
+const win = {};
+new Function('window', codigo)(win);
+const palavras = win.DADOS_CRUZADINHA;
+const layout = win.LAYOUT_CRUZADINHA;
 
-// extrai a variável window.DADOS_CRUZADINHA de forma simples
-const match = content.match(/window\.DADOS_CRUZADINHA\s*=\s*(\[([\s\S]*)\]);/);
-if(!match){ console.error('Formato inesperado em dados.js'); process.exit(2) }
-let arr;
-try{
-  arr = eval('(' + match[1] + ')');
-}catch(e){ console.error('Não foi possível avaliar dados.js:',e.message); process.exit(2) }
+let erros = 0, avisos = 0;
+const erro = (m) => { console.error('ERRO:  ' + m); erros++; };
+const aviso = (m) => { console.warn('AVISO: ' + m); avisos++; };
+const norm = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-if(!Array.isArray(arr)){ console.error('dados.js não contém um array'); process.exit(2) }
-
-// checa regras básicas
-let ok=true;
-arr.forEach(it=>{
-  if(!it.word || !it.clue){ console.error('Entrada inválida:',it); ok=false }
-  // word must be uppercase letters A-Z
-  if(!/^[A-Z]+$/.test(it.word)){
-    console.error('Palavra deve ser MAIÚSCULA sem acentos nem espaços:', it.word); ok=false }
-  // clue cannot contain the answer or parts: quick check
-  const lowClue = it.clue.toUpperCase();
-  if(lowClue.includes(it.word)){
-    console.error('A pista não pode conter a resposta:', it.word); ok=false }
+// ---------- 1) palavras e pistas ----------
+// palavras que NÃO podem aparecer na pista (partes do nome ou da sigla por extenso)
+const proibidas = {
+  ULA: ['unidade', 'aritmetica'],
+  UC: ['unidade', 'controle'],
+  RAM: ['random', 'acesso aleatorio'],
+  ROM: ['read only', 'somente leitura'],
+  MEMORIADEMASSA: ['memoria', 'massa'],
+  DATABUS: ['data', 'bus', 'barramento de dados'],
+  ADDRESSBUS: ['address', 'bus', 'barramento de endereco'],
+  DUALCORE: ['dual', 'core'],
+  QUADCORE: ['quad', 'core']
+};
+palavras.forEach((p) => {
+  if (!/^[A-Z]+$/.test(p.word)) erro(`${p.word}: use MAIÚSCULAS, sem acento e sem espaço`);
+  const n = p.clue.trim().split(/\s+/).length;
+  if (n > 15) erro(`${p.word}: pista com ${n} palavras (máximo 15)`);
+  // siglas curtas (UC, RAM...) só contam como palavra inteira; as demais, em qualquer parte
+  const contem = p.word.length <= 3
+    ? new RegExp('\\b' + norm(p.word) + '\\b').test(norm(p.clue))
+    : norm(p.clue).includes(norm(p.word));
+  if (contem) erro(`${p.word}: a pista contém a resposta`);
+  (proibidas[p.word] || []).forEach((t) => {
+    if (norm(p.clue).includes(t)) aviso(`${p.word}: a pista contém "${t}" (parte do nome/sigla por extenso)`);
+  });
 });
-if(!ok) process.exit(2);
 
-// tenta correr o gerador (reutiliza uma versão do algoritmo do browser)
-function tryPlace(words){
-  const GRID_SIZE=15; const EMPTY=null;
-  const grid = Array.from({length:GRID_SIZE},()=>Array.from({length:GRID_SIZE},()=>EMPTY));
-  const placements = [];
-  function fitsAt(word,r,c,dir){
-    const L=word.length; if(dir==='across'){ if(c+L>GRID_SIZE) return false; for(let i=0;i<L;i++){ const ch=grid[r][c+i]; if(ch!==EMPTY && ch!==word[i]) return false } return true }
-    else{ if(r+L>GRID_SIZE) return false; for(let i=0;i<L;i++){ const ch=grid[r+i][c]; if(ch!==EMPTY && ch!==word[i]) return false } return true }
+// ---------- 2) layout ----------
+const N = 14;
+const grade = Array.from({ length: N }, () => Array(N).fill(null));
+const colocadas = [];
+layout.forEach(([w, r, c, d]) => {
+  if (!palavras.some((p) => p.word === w)) erro(`${w}: está no layout mas não em DADOS_CRUZADINHA`);
+  for (let i = 0; i < w.length; i++) {
+    const rr = d === 'across' ? r : r + i, cc = d === 'across' ? c + i : c;
+    if (rr >= N || cc >= N) { erro(`${w}: sai da grade ${N}x${N}`); return; }
+    if (grade[rr][cc] && grade[rr][cc] !== w[i]) erro(`${w}: conflito de letra em (${rr},${cc})`);
+    grade[rr][cc] = w[i];
   }
-  function setWord(word,r,c,dir){ const L=word.length; if(dir==='across'){ for(let i=0;i<L;i++) grid[r][c+i]=word[i] } else{ for(let i=0;i<L;i++) grid[r+i][c]=word[i] } placements.push({word,r,c,dir}) }
+  colocadas.push({ w, r, c, d });
+});
+console.log(`Palavras no layout: ${colocadas.length} (mínimo 12)`);
+if (colocadas.length < 12) erro('menos de 12 palavras no tabuleiro');
 
-  const first=words[0]; const r0=Math.floor(GRID_SIZE/2); const c0=Math.max(0,Math.floor((GRID_SIZE-first.length)/2)); setWord(first,r0,c0,'across');
-  for(let k=1;k<words.length;k++){ const w=words[k]; let placed=false;
-    for(let i=0;i<w.length && !placed;i++){ const ch=w[i];
-      for(let r=0;r<GRID_SIZE && !placed;r++) for(let c=0;c<GRID_SIZE && !placed;c++){
-        if(grid[r][c]===ch){ const sc=c-i; if(sc>=0 && fitsAt(w,r,sc,'across')){ setWord(w,r,sc,'across'); placed=true; break }
-          const sr=r-i; if(sr>=0 && fitsAt(w,sr,c,'down')){ setWord(w,sr,c,'down'); placed=true; break }
-        }
-      }
-    }
-    if(!placed){ outer: for(let r=0;r<GRID_SIZE && !placed;r++) for(let c=0;c<GRID_SIZE && !placed;c++){ if(fitsAt(w,r,c,'across')){ setWord(w,r,c,'across'); placed=true; break outer } if(fitsAt(w,r,c,'down')){ setWord(w,r,c,'down'); placed=true; break outer } } }
+// toda sequência de 2+ letras tem que ser exatamente uma palavra do layout (sem palavras coladas)
+const conj = new Set(colocadas.map((p) => `${p.d}|${p.r}|${p.c}|${p.w}`));
+for (let r = 0; r < N; r++) {
+  for (let c = 0; c < N;) {
+    if (!grade[r][c]) { c++; continue; }
+    const ini = c; let s = '';
+    while (c < N && grade[r][c]) s += grade[r][c++];
+    if (s.length > 1 && !conj.has(`across|${r}|${ini}|${s}`)) erro(`sequência horizontal inválida "${s}" na linha ${r}`);
   }
-  return {grid,placements};
+}
+for (let c = 0; c < N; c++) {
+  for (let r = 0; r < N;) {
+    if (!grade[r][c]) { r++; continue; }
+    const ini = r; let s = '';
+    while (r < N && grade[r][c]) s += grade[r++][c];
+    if (s.length > 1 && !conj.has(`down|${ini}|${c}|${s}`)) erro(`sequência vertical inválida "${s}" na coluna ${c}`);
+  }
 }
 
-const words = arr.map(a=>a.word);
-const out = tryPlace(words);
-console.log('Palavras solicitadas:',words.length);
-console.log('Colocadas:', out.placements.length);
-if(out.placements.length<12){ console.error('Aviso: menos de 12 palavras foram colocadas pelo gerador.'); process.exit(1) }
-console.log('OK: validar.js terminou (colocadas >= 12).');
-process.exit(0);
+// cada palavra cruza com pelo menos outra
+colocadas.forEach((p) => {
+  let cruza = false;
+  for (let i = 0; i < p.w.length; i++) {
+    const rr = p.d === 'across' ? p.r : p.r + i, cc = p.d === 'across' ? p.c + i : p.c;
+    const viz = p.d === 'across' ? [[rr - 1, cc], [rr + 1, cc]] : [[rr, cc - 1], [rr, cc + 1]];
+    if (viz.some(([a, b]) => grade[a] && grade[a][b])) cruza = true;
+  }
+  if (!cruza) erro(`${p.w}: não cruza com nenhuma outra palavra`);
+});
+
+// tabuleiro conectado
+const celulas = [];
+grade.forEach((l, r) => l.forEach((v, c) => { if (v) celulas.push([r, c]); }));
+const vis = new Set([celulas[0].join()]), pilha = [celulas[0]];
+while (pilha.length) {
+  const [r, c] = pilha.pop();
+  [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => {
+    const k = [r + a, c + b].join();
+    if (grade[r + a] && grade[r + a][c + b] && !vis.has(k)) { vis.add(k); pilha.push([r + a, c + b]); }
+  });
+}
+if (vis.size !== celulas.length) erro('o tabuleiro não está conectado');
+
+console.log(grade.map((l) => l.map((v) => v || '.').join('')).join('\n'));
+console.log(`\n${erros} erro(s), ${avisos} aviso(s).`);
+process.exit(erros ? 1 : 0);

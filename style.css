@@ -1,110 +1,540 @@
-:root{
-  --bg: #0a1222;
-  --card: #0e1a30;
-  --card-fundo: #0a1424;
-  --borda: #1c2c47;
-  --menta: #2fd9a8;
-  --texto: #e8eefc;
-  --texto-suave: #9fb0cc;
-  --certo: #2fd9a8;
-  --errado: #ff5d6c;
-  --casa: #f4f7fc;
-  --casa-vazia: #0e1830;
+:root {
+  --bg: #050b17;
+  --painel: rgba(10, 20, 40, 0.9);
+  --borda: #17304d;
+  --ciano: #22e4ff;
+  --magenta: #ff3df2;
+  --texto: #e6f3ff;
+  --texto-suave: #8fa9c7;
+  --certo: #2fe39a;
+  --amarelo: #ffd23f;
+  --errado: #ff4d6d;
+  --casa: #eaf6ff;
+  --casa-ativa: #cfeffb;
+  --grade-vazia: #0b1830;
+  --grade-gap: #060f20;
+  --tam-casa: 44px;
+  /* will be overridden by JS */
 }
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family: system-ui, "Segoe UI", Roboto, Arial, sans-serif;
-  background: radial-gradient(800px 400px at 10% 85%, rgba(10,18,34,0.12), transparent 20%), var(--bg);
-  color:var(--texto);
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+
+* {
+  box-sizing: border-box
 }
-.container{max-width:1190px;margin:18px auto;padding:18px}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--texto);
+  background:
+    radial-gradient(circle at 0 0, rgba(34, 228, 255, .16), transparent 45%),
+    radial-gradient(circle at 100% 100%, rgba(255, 61, 242, .10), transparent 40%),
+    repeating-linear-gradient(0deg, rgba(34, 228, 255, .04) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, rgba(34, 228, 255, .04) 0 1px, transparent 1px 40px),
+    var(--bg);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 36px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px
+}
 
 /* Header */
-.site-header{border-bottom:1px solid var(--borda);background:transparent;padding:10px 0;margin-bottom:18px}
-.site-header-inner{display:flex;flex-direction:column;gap:8px;max-width:1190px;margin:0 auto;padding:0 14px}
-.kicker{color:var(--menta);font-weight:800;letter-spacing:0.12em;font-size:0.8rem;text-transform:uppercase}
-.title-row{display:flex;align-items:center;gap:16px}
-.site-title{font-size:2rem;margin:0;font-weight:800;color:var(--texto)}
-.nav-menu{margin-left:auto;display:flex;gap:8px}
-.nav-btn{background:transparent;border:1px solid var(--menta);color:var(--menta);padding:12px 18px;border-radius:12px;font-weight:800;font-size:1.05rem;cursor:pointer}
-.nav-btn.current{background:rgba(47,217,168,0.08);color:var(--texto)}
-.nav-btn:hover{background:rgba(47,217,168,0.12)}
-.nav-btn:focus{outline:3px solid rgba(47,217,168,0.18)}
+.site-header-inner {
+  position: relative
+}
 
-/* layout */
-.game{display:flex;gap:24px;align-items:flex-start}
-.card{background:var(--card);border:1px solid var(--borda);border-radius:20px;padding:18px}
-.board-card{flex:1;min-width:320px}
-.clues-card{width:380px}
-.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.card-title{font-size:1.5rem;font-weight:800;color:var(--texto)}
-.card-actions{display:flex;align-items:center;gap:12px}
-.card-actions #score{color:var(--menta);font-weight:800;font-size:1.15rem}
-.card-actions button{border-radius:10px;padding:12px 18px;font-weight:800;cursor:pointer;border:1px solid var(--borda)}
-.card-actions button:focus{outline:3px solid rgba(47,217,168,0.14)}
-.card-actions #check{background:var(--menta);color:#06231b;border:1px solid rgba(0,0,0,0.06)}
-.card-actions #restart{background:#131f38;color:var(--texto);border:1px solid var(--borda)}
-.card-actions button:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.prompt-line {
+  font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+  color: var(--ciano);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: .1em
+}
 
-.card-body{background:var(--card-fundo);border:1px solid var(--borda);border-radius:16px;padding:12px}
+.prompt-line .cursor {
+  display: inline-block;
+  margin-left: 6px;
+  opacity: 1
+}
 
-#board-wrap{overflow:auto;padding:12px;display:flex;justify-content:center}
-#board{display:grid;gap:5px;padding:8px}
-.cell{width:52px;height:52px;border-radius:6px;position:relative;display:flex;align-items:center;justify-content:center;transition:background-color 150ms,color 150ms,transform 120ms}
-.cell.block{background:var(--casa-vazia)}
-.cell input{width:100%;height:100%;border:0;background:var(--casa);color:#0a1222;font-weight:800;font-size:1.5rem;text-align:center;outline:none;border-radius:6px}
-.cell .num{position:absolute;left:6px;top:4px;font-size:0.6rem;color:#5b6f94;font-weight:600;text-transform:lowercase}
+@media (prefers-reduced-motion: no-preference) {
+  .prompt-line .cursor {
+    animation: blink 1s steps(1) infinite
+  }
+}
 
-/* focus and active word (best-effort: focus cell + focus-within) */
-.cell:focus-within{box-shadow:0 0 0 3px rgba(47,217,168,0.12);}
-.cell input:focus{outline:2px solid var(--menta);box-shadow:0 4px 18px rgba(47,217,168,0.08)}
-.cell:focus-within input{background: #d6f7ec}
+@keyframes blink {
+  50% {
+    opacity: 0
+  }
+}
 
-/* correct / wrong */
-.cell.correct{background:var(--certo)}
-.cell.correct input{background:transparent;color:#06231b}
-.cell.wrong{background:var(--errado)}
-.cell.wrong input{background:transparent;color:#fff}
-.cell.correct.wrong{background:var(--certo)}
+.site-title {
+  font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  margin: 8px 0 14px;
+  color: var(--texto);
+  text-shadow: 0 0 18px rgba(34, 228, 255, .6)
+}
 
-.help{color:var(--texto-suave);font-size:0.95rem;margin-top:12px}
+.title-underline {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--ciano), var(--magenta), transparent)
+}
 
-/* clues */
-.lists{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.list-title{font-size:0.85rem;color:var(--menta);font-weight:800;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 8px}
-.clue-list{list-style-position:inside;padding:0;margin:0;color:var(--texto)}
-.clue-list li{padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.clue-list li:hover{background:#13213b;cursor:pointer}
-.clue-list li strong{color:var(--menta);margin-right:8px}
-.clue-list li .status{opacity:0}
-.clue-list li.correct .status{opacity:1;color:var(--certo)}
-.clue-list li.wrong .status{opacity:1;color:var(--errado)}
-.message{margin-top:12px;padding:10px;border-radius:8px;background:transparent;min-height:40px}
+/* Layout */
+.game {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start
+}
 
-/* success banner */
-.success-banner{border:1px solid rgba(47,217,168,0.22);background:rgba(47,217,168,0.08);padding:12px;border-radius:14px;color:var(--texto);font-weight:700;animation: enter 260ms ease}
-@keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.board-card {
+  flex: 1 1 0;
+  min-width: 0
+}
+
+.clues-card {
+  flex: 0 0 472px
+}
+
+@media (max-width:1000px) {
+  .game {
+    flex-direction: column;
+    align-items: stretch
+  }
+
+  .clues-card {
+    flex: none
+  }
+}
+
+.painel {
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 14px;
+  padding: 28px;
+  position: relative
+}
+
+.painel::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 18px;
+  height: 18px;
+  border-top: 2px solid var(--ciano);
+  border-left: 2px solid var(--ciano);
+  border-top-left-radius: 14px
+}
+
+.painel::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 18px;
+  height: 18px;
+  border-bottom: 2px solid var(--ciano);
+  border-right: 2px solid var(--ciano);
+  border-bottom-right-radius: 14px
+}
+
+.panel-title {
+  font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--texto);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px
+}
+
+.panel-title::before {
+  content: "▍";
+  color: var(--magenta);
+  margin-right: 8px
+}
+
+/* status bar inside tabuleiro painel */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 20px
+}
+
+.card-title {
+  font-size: 1.2rem
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px
+}
+
+.pill-score {
+  border: 1px solid var(--ciano);
+  background: rgba(34, 228, 255, .08);
+  color: var(--ciano);
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 11px 14px;
+  border-radius: 999px
+}
+
+#score {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 11px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--ciano);
+  background: rgba(34, 228, 255, .08);
+  color: var(--ciano)
+}
+
+#lives {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "JetBrains Mono", monospace
+}
+
+.vida {
+  font-size: 22px
+}
+
+.vida.ativa {
+  color: var(--magenta);
+  text-shadow: 0 0 10px var(--magenta)
+}
+
+.vida.perdida {
+  color: var(--borda)
+}
+
+/* Buttons */
+#check {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: 0;
+  background: var(--ciano);
+  color: #031018;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  box-shadow: 0 0 14px rgba(34, 228, 255, .55);
+  cursor: pointer
+}
+
+#restart {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: 1px solid var(--magenta);
+  background: transparent;
+  color: var(--magenta);
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  cursor: pointer
+}
+
+#check:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05)
+}
+
+#restart:hover {
+  background: rgba(255, 61, 242, .15);
+  box-shadow: 0 0 12px rgba(255, 61, 242, .08)
+}
+
+#check:focus,
+#restart:focus {
+  outline: 2px solid var(--ciano);
+  outline-offset: 2px
+}
+
+/* board box */
+#board-wrap {
+  position: relative;
+  padding: 11px;
+  background: var(--grade-gap);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center
+}
+
+#board {
+  display: grid;
+  gap: 4px
+}
+
+.cell {
+  width: var(--tam-casa);
+  height: var(--tam-casa);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative
+}
+
+.cell.block {
+  background: var(--grade-vazia)
+}
+
+.cell input {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--casa);
+  border-radius: 6px;
+  box-shadow: 0 0 6px rgba(34, 228, 255, .25);
+  border-bottom: 2px solid #9cc9e8;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 800;
+  font-size: calc(var(--tam-casa) * 0.5);
+  text-align: center;
+  color: #06101f
+}
+
+.cell .num {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 800;
+  font-size: calc(var(--tam-casa) * 0.23);
+  color: #1b3552
+}
+
+.casa-foco input {
+  background: var(--casa-ativa);
+  outline: 2px solid var(--ciano);
+  box-shadow: 0 0 12px var(--ciano)
+}
+
+.palavra-ativa input {
+  background: var(--casa-ativa)
+}
+
+.contorno-palavra {
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid var(--ciano);
+  border-radius: 8px;
+  box-shadow: 0 0 14px rgba(34, 228, 255, .55);
+  transition: all 120ms ease;
+  display: none;
+  z-index: 5
+}
+
+/* feedback colors take precedence */
+.casa-verde input {
+  background: var(--certo) !important;
+  border-bottom-color: #1aa76f;
+  color: #06101f
+}
+
+.casa-amarela input {
+  background: var(--amarelo) !important;
+  border-bottom-color: #c79a00;
+  color: #06101f
+}
+
+.casa-vermelha input {
+  background: var(--errado) !important;
+  border-bottom-color: #b8243f;
+  color: #06101f
+}
+
+/* status & help */
+.status-area {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--magenta);
+  background: rgba(255, 61, 242, .08);
+  border-radius: 10px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px
+}
+
+.status-area.vitoria {
+  border-color: var(--certo);
+  background: rgba(47, 227, 154, .06)
+}
+
+.status-area.derrota {
+  border-color: var(--errado);
+  background: rgba(255, 77, 109, .06)
+}
+
+.status-area:empty {
+  display: none
+}
+
+.help {
+  margin: 14px 0 0;
+  font-family: system-ui, "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  color: var(--texto-suave);
+  line-height: 1.5
+}
+
+.help strong {
+  font-weight: 700
+}
+
+.help .c-verde {
+  color: var(--certo)
+}
+
+.help .c-amarelo {
+  color: var(--amarelo)
+}
+
+.help .c-vermelho {
+  color: var(--errado)
+}
+
+/* pistas */
+.lists {
+  display: flex;
+  flex-direction: column;
+  gap: 22px
+}
+
+.list-title {
+  font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  color: var(--magenta);
+  margin: 0 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--borda)
+}
+
+.clue-list {
+  list-style: none;
+  padding: 0;
+  margin: 0
+}
+
+.clue-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: system-ui, Segoe UI, Arial, sans-serif;
+  font-size: 15px;
+  color: var(--texto)
+}
+
+.clue-list li .clue-num {
+  font-family: "JetBrains Mono", monospace;
+  color: var(--ciano);
+  font-weight: 800;
+  min-width: 20px
+}
+
+.clue-list li:hover {
+  background: rgba(34, 228, 255, .08);
+  cursor: pointer
+}
+
+.pista-ativa {
+  background: rgba(34, 228, 255, .18);
+  border-left: 3px solid var(--ciano);
+  padding-left: 7px
+}
+
+.clue-list li .status {
+  margin-left: auto;
+  font-weight: 800
+}
+
+.clue-list li.correct .status {
+  color: var(--certo)
+}
+
+.clue-list li.wrong .status {
+  color: var(--errado)
+}
+
+.clue-list li {
+  line-height: 1.4;
+  margin-bottom: 2px
+}
+
+.message:empty {
+  display: none
+}
 
 /* responsive */
-@media (max-width:900px){
-  .game{flex-direction:column}
-  .clues-card{width:100%}
-  .card{padding:14px}
-  .cell{width:40px;height:40px}
-  .site-title{font-size:1.4rem}
-  .nav-menu{order:3;width:100%;justify-content:flex-start}
+@media (max-width:1000px) {
+  .site-title {
+    font-size: 30px
+  }
+
+  .painel {
+    padding: 18px
+  }
+
+  .card-actions {
+    flex-wrap: wrap
+  }
 }
 
-@media (max-width:700px){
-  #board{gap:4px}
-  .cell{width:36px;height:36px}
-  .card-actions{flex-direction:column;align-items:flex-end}
+@media (prefers-reduced-motion: reduce) {
+  .prompt-line .cursor {
+    animation: none
+  }
+
+  .contorno-palavra {
+    transition: none
+  }
 }
 
-@media (prefers-reduced-motion: reduce){
-  *{transition:none!important;animation:none!important}
+/* rodapé */
+footer {
+  text-align: center;
+  font-family: system-ui, "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  color: var(--texto-suave)
+}
+
+footer p {
+  margin: 0
 }

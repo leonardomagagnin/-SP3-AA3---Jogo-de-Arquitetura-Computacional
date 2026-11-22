@@ -1,4 +1,21 @@
 // dados.js
+// Layout FIXO do tabuleiro: [palavra, linha, coluna, direção] (linha/coluna começam em 0)
+// Grade de 14 x 14. Validado com `node validar.js` (cruzamentos, sem palavras coladas).
+window.LAYOUT_CRUZADINHA = [
+  ["MEMORIADEMASSA", 6, 0, "across"],
+  ["REGISTRADORES", 0, 4, "down"],
+  ["DATABUS", 3, 13, "down"],
+  ["DMA", 4, 6, "down"],
+  ["FLASH", 12, 1, "across"],
+  ["EEPROM", 10, 1, "across"],
+  ["CACHE", 2, 8, "down"],
+  ["CPU", 8, 11, "across"],
+  ["RAM", 4, 0, "down"],
+  ["ROM", 8, 6, "down"],
+  ["UC", 2, 7, "across"],
+  ["ULA", 4, 11, "across"]
+];
+
 // Lista de palavras (CASES = maiúsculas sem acento e sem espaço), pistas em PT-BR
 // Cada item: { id, word, clue }
 window.DADOS_CRUZADINHA = [
@@ -15,5 +32,3 @@ window.DADOS_CRUZADINHA = [
   { id:11, word: "DMA", clue: "Mecanismo que move dados diretamente entre dispositivos, sem ocupar a CPU." },
   { id:13, word: "DATABUS", clue: "Conjunto que transporta os bits entre componentes para leitura e escrita." }
 ];
-
-// coordenadas serão geradas dinamicamente pelo script. Mantemos o arquivo como fonte de palavras e pistas.

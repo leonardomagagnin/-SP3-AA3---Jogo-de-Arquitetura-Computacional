@@ -10,23 +10,19 @@
   <main class="container">
     <header class="site-header">
       <div class="site-header-inner">
-        <div class="kicker">ARQUITETURA COMPUTACIONAL · CRUZADINHA</div>
-        <div class="title-row">
-          <h1 class="site-title">Cruzadinha</h1>
-          <nav class="nav-menu" aria-label="menu principal">
-            <button class="nav-btn current">Jogar</button>
-            <button class="nav-btn">Sobre</button>
-          </nav>
-        </div>
+        <div class="prompt-line">&gt; ARQCOMP.EXE<span class="cursor">_</span></div>
+        <h1 class="site-title">CRUZADINHA</h1>
+        <div class="title-underline"></div>
       </div>
     </header>
 
     <section class="game">
-      <div class="card board-card">
+      <div class="card board-card painel">
         <div class="card-header">
-          <div class="card-title">Tabuleiro</div>
+          <h2 class="panel-title">TABULEIRO</h2>
           <div class="card-actions">
             <div id="score">0 de 0 palavras</div>
+            <div id="lives" aria-label="3 vidas restantes">Vidas: ♥ ♥ ♥</div>
             <button id="check">Conferir</button>
             <button id="restart">Reiniciar</button>
           </div>
@@ -36,13 +32,14 @@
           <div id="board-wrap">
             <div id="board"></div>
           </div>
-          <p class="help">Digite direto nas casas. As setas do teclado andam pelas casas. Clique numa pista para destacar a palavra. <strong>Verde:</strong> palavra certa. <strong>Vermelho:</strong> palavra errada.</p>
+          <div id="status" class="status-area" aria-live="polite"></div>
+          <p class="help">Digite direto nas casas e use as setas para andar pelo tabuleiro. Ao clicar em Conferir: <strong class="c-verde">verde</strong> = letra certa no lugar certo; <strong class="c-amarelo">amarelo</strong> = a letra existe na palavra, mas está no lugar errado; <strong class="c-vermelho">vermelho</strong> = a letra não pertence à palavra. Casas vazias não tiram vida; só letra errada confirmada no Conferir.</p>
         </div>
       </div>
 
-      <aside class="card clues-card">
+      <aside class="card clues-card painel">
         <div class="card-header">
-          <div class="card-title">Pistas</div>
+          <h2 class="panel-title">PISTAS</h2>
         </div>
         <div class="card-body">
           <div class="lists">
