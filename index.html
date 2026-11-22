@@ -4,43 +4,44 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Cruzadinha - Arquitetura Computacional</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="topnav">
-    <nav>
-      <a href="index.html" class="active">Cruzadinha</a>
-      <a href="batalha.html">Batalha</a>
-    </nav>
-  </header>
-
   <main class="container">
-    <h1>Cruzadinha — Arquitetura Computacional</h1>
-    <p class="lead">Preencha o quadro com os conceitos. Clique em uma pista para destacar.</p>
+    <h1>Cruzadinha: Arquitetura Computacional</h1>
 
-    <section id="crossword-area">
-      <!-- O tabuleiro será renderizado por script.js -->
-      <div id="board" class="board" aria-label="Tabuleiro da cruzadinha"></div>
+    <section class="game">
+      <div id="board-wrap">
+        <div id="board"></div>
+      </div>
+
       <aside class="clues">
-        <div>
-          <h2>Horizontais</h2>
-          <ol id="clues-across"></ol>
-        </div>
-        <div>
-          <h2>Verticais</h2>
-          <ol id="clues-down"></ol>
-        </div>
         <div class="controls">
           <button id="check">Conferir</button>
           <button id="restart">Reiniciar</button>
-          <div id="counter" class="counter">0 de 12</div>
+          <div id="score">0 de 0 palavras</div>
         </div>
+
+        <div class="lists">
+          <div>
+            <h2>Horizontais</h2>
+            <ol id="across"></ol>
+          </div>
+          <div>
+            <h2>Verticais</h2>
+            <ol id="down"></ol>
+          </div>
+        </div>
+        <div id="message" class="message"></div>
       </aside>
     </section>
 
+    <footer>
+      <p>Nível introdutório — disciplina Arquitetura Computacional</p>
+    </footer>
   </main>
 
-  <script src="conceitos.js"></script>
+  <script src="dados.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
