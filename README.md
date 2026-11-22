@@ -1,26 +1,34 @@
-Cruzadinha - Arquitetura Computacional
+# ARQBYTE — Arquitetura e Organização de Computadores
 
-Projeto minimal de cruzadinha (HTML/CSS/JS puros) para treinar termos básicos de arquitetura computacional.
+## Sobre o projeto
 
-Como usar
+Este projeto consiste em um jogo educativo de palavras cruzadas desenvolvido com o objetivo de reforçar os conhecimentos da disciplina de **Arquitetura e Organização de Computadores** de maneira interativa e divertida.
 
-Abra index.html diretamente no navegador (funciona no GitHub Pages).
-A interface está em português do Brasil.
+Por meio de pistas e desafios, o jogador precisa identificar conceitos relacionados ao funcionamento e à estrutura dos computadores, colocando seus conhecimentos à prova enquanto aprende.
 
-Arquivos
+## Tecnologias utilizadas
 
-index.html — aplicação principal (na raiz)
-style.css — estilos
-script.js — lógica do jogo: gera o tabuleiro a partir de dados.js e monta a interface
-dados.js — lista das palavras (MAIÚSCULAS, sem acentos, sem espaços) e pistas
-validar.js — script para rodar localmente com Node para validar pistas e layout do tabuleiro
+O projeto foi desenvolvido utilizando as seguintes tecnologias:
 
-Requisitos do sistema
+- **HTML5:** responsável pela estruturação e organização dos elementos da página.
+- **CSS3:** utilizado para a estilização, identidade visual e organização do layout do jogo.
+- **JavaScript:** responsável pela lógica, interatividade e funcionamento da cruzadinha.
 
-Navegador moderno (Chrome, Firefox, Edge) ou GitHub Pages
-Node.js (opcional) para rodar node validar.js
+## Objetivo
 
-Notas técnicas
+Tornar o aprendizado dos conceitos de Arquitetura e Organização de Computadores mais dinâmico, incentivando o raciocínio, a memorização e a aplicação dos conhecimentos adquiridos em sala de aula.
 
-O tabuleiro usa um layout fixo (LAYOUT_CRUZADINHA em dados.js), conferido pelo validar.js (cruzamentos, sem palavras coladas, tabuleiro conectado).
-O arquivo dados.js contém as 12 palavras usadas no tabuleiro, as pistas em PT-BR e as coordenadas do layout.
+## Como executar
+
+1. Faça o download ou clone este repositório.
+2. Abra a pasta do projeto em seu computador.
+3. Execute o arquivo `index.html` em um navegador de sua preferência.
+4. Comece a jogar e teste seus conhecimentos!
+
+## Público-alvo
+
+Estudantes da área de Tecnologia da Informação que desejam revisar e praticar conceitos relacionados à Arquitetura e Organização de Computadores.
+
+---
+
+Desenvolvido como projeto educacional, unindo tecnologia, conhecimento e diversão. 💻
